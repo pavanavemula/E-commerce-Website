@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foodify | Order Delicious Meals</title>
+  <style>
+    /* ===== GENERAL ===== */
+    * {margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif;}
+    body {background-color: #fff8f3; color: #333; scroll-behavior: smooth;}
+
+    /* ===== NAVBAR ===== */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background-color: #ff4d4d; color: #fff;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    header h1 {font-size: 1.8rem; letter-spacing: 1px;}
+    nav ul {list-style: none; display: flex; gap: 25px;}
+    nav a {color: #fff; text-decoration: none; font-weight: 500; transition: color 0.3s;}
+    nav a:hover {color: #ffe066;}
+    .search-bar {background: #fff; border-radius: 8px; display: flex; align-items: center; padding: 5px 12px;}
+    .search-bar input {border: none; outline: none; padding: 8px; width: 220px;}
+    .search-bar button {border: none; background: #ff4d4d; color: white; padding: 8px 14px; border-radius: 6px; cursor: pointer;}
+
+    /* ===== HERO ===== */
+    .hero {
+      background: url("https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=1600") center/cover no-repeat;
+      height: 380px; color: #fff; text-align: center;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.6);
+    }
+    .hero h2 {font-size: 3rem; margin-bottom: 10px;}
+    .hero p {font-size: 1.2rem;}
+
+    /* ===== FILTERS ===== */
+    .filters {text-align: center; margin: 25px 0;}
+    .filters button {
+      background: #ff4d4d; color: white; border: none;
+      padding: 10px 20px; border-radius: 25px; cursor: pointer;
+      margin: 6px; transition: 0.3s;
+    }
+    .filters button:hover {background: #e63939;}
+
+    /* ===== PRODUCT GRID ===== */
+    .products {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 25px; padding: 20px 60px;
+    }
+    .product-card {
+      background: #fff; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s; cursor: pointer;
+    }
+    .product-card:hover {transform: translateY(-5px);}
+    .product-card img {width: 100%; height: 200px; object-fit: cover;}
+    .product-info {padding: 15px; text-align: center;}
+    .product-info h3 {margin-bottom: 6px;}
+    .price {color: #ff4d4d; font-weight: bold; margin-bottom: 8px;}
+    .btn {background-color: #ffa500; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;}
+    .btn:hover {background-color: #e69500;}
+
+    /* ===== CART ===== */
+    #cartSection {
+      display: none; padding: 30px; background: #fff;
+      max-width: 800px; margin: 30px auto; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    #cartItems div {display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ddd;}
+    #checkoutBtn {margin-top: 20px; background-color: #28a745; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;}
+    #checkoutBtn:hover {background-color: #218838;}
+
+    /* ===== FOOTER ===== */
+    footer {background-color: #ff4d4d; color: #fff; text-align: center; padding: 20px; margin-top: 40px;}
+
+    @media (max-width: 768px) {
+      header {flex-direction: column; padding: 15px;}
+      nav ul {flex-direction: column; gap: 10px; margin-top: 10px;}
+      .products {padding: 15px;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header>
+    <h1>Foodify 🍔</h1>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search dishes..." onkeyup="searchProducts()">
+      <button onclick="searchProducts()">Search</button>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#allProducts">All Dishes</a></li>
+        <li><a href="#cartSection" onclick="showCart()">Cart 🛒 (<span id="cartCount">0</span>)</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section id="home" class="hero">
+    <h2>Delicious Meals, Anytime!</h2>
+    <p>Order food from your favorite restaurants 🍕🍔🥗</p>
+  </section>
+
+  <!-- FILTERS -->
+  <div id="menu" class="filters">
+    <button onclick="filterProducts('all')">All</button>
+    <button onclick="filterProducts('pizza')">Pizza</button>
+    <button onclick="filterProducts('burgers')">Burgers</button>
+    <button onclick="filterProducts('desserts')">Desserts</button>
+    <button onclick="filterProducts('drinks')">Drinks</button>
+    <button onclick="filterProducts('indian')">Indian</button>
+  </div>
+
+  <!-- PRODUCTS -->
+  <section id="allProducts" class="products"></section>
+
+  <!-- CART -->
+  <section id="cartSection">
+    <h2>Your Cart 🛒</h2>
+    <div id="cartItems"></div>
+    <button id="checkoutBtn" onclick="checkout()">Proceed to Checkout</button>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>© 2025 Foodify | Taste the Joy 🍽️</footer>
+
+  <script>
+    const products = [
+      { name: "Margherita Pizza", category: "pizza", price: "₹199", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8GQCgYr3rl4pMkPyqkvQdTzbY5vOVML6oow&s" },
+      { name: "Paneer Pizza", category: "pizza", price: "₹249", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhbU9gbcADatQA_HAZK6d5Xu4vGAZfM_DRGQ&s" },
+      { name: "Cheese-n-corn Pizza", category: "pizza", price: "₹249", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDeFH9P9tsHatgYpU-bZQdrwViSPWKbJM-Qg&s" },
+      { name: "Volcano Pizza", category: "pizza", price: "₹399", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwPHEI0pNoEcIx8Yjdto2TCaT1tKbkzIh96g&s" },
+      { name: "Pepperoni Pizza", category: "pizza", price: "₹349", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSa64ena3I9uRewv0r3osGJMJWrWAiBbGIayQ&s" },
+      { name: "Veggie Burger", category: "burgers", price: "₹149", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwLNCYqPbbZjjuqnHshB2_Cx_qXBSt6UfTwQ&s" },
+      { name: "Cheese Burger", category: "burgers", price: "₹149", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKzqnG45BC5ASuNzAzwnNWzZ9Vw_VJqYLjdA&s" },
+      { name: "Chicken Burger", category: "burgers", price: "₹199", img: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500" },
+      { name: "Chocolate Brownie", category: "desserts", price: "₹149", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxyjvYDJomIX4g_1X40k5D87ADNXn2eKqk5A&s" },
+      { name: "Oreo Ice Cream cake", category: "desserts", price: "₹189", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5BKaIuR4eRYqjbkoAHPsHtmaIr7Mo5uPzhQ&s" },
+      { name: "Vegan Ice Cream cake", category: "desserts", price: "₹149", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWRFvuYiw-VDf_GQjBpa0tc4FdF4RMQcQSeg&s" },
+      { name: "Kit kat waffle", category: "desserts", price: "₹199", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnF5ttD4zEbvxlJqtDzuVp_dfLEVDkBgGCiIegaohigwwbBb8-KfcUVRed6IIqlEXGqJ0&usqp=CAU" },
+      { name: "Ice Cream Sundae", category: "desserts", price: "₹129", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdhYqD4LdFlyj0Sui-NggjGPzYnuyC8HUkaA&s" },
+      { name: "Mango Lassi", category: "drinks", price: "₹99", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3Q27KUPh5v60pLiJZxBcN_9jA7wQvn4kgZg&s" },
+      { name: "Coke", category: "drinks", price: "₹29", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjcHVOs9Tdw9CDrCY4wiVbq96pNKN-vbT73Q&s" },
+      { name: "Belgium Milkshake", category: "drinks", price: "₹199", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0vZsB7k9mSOpMwh4wV2vNHe-2-vjFh_n2EQ&s" },
+      { name: "Cold Coffee", category: "drinks", price: "₹119", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-oLldfKsc_menMCgGvX-e53tj5prQvY7Tpg&s" },
+      { name: "Paneer Butter Masala", category: "indian", price: "₹259", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcR0i_xrORo0Qii3eJLnN4Kl5ep0LapqXZOw&s" },
+      { name: "Butter naan", category: "indian", price: "₹70", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuRU2GJ2HoEzSOCCZma3hkqOJG-feNrT4lDg&s" },
+      { name: "Mushroom Biryani", category: "indian", price: "₹349", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrVEqdjiZqQ2yOL7IRBy-uGH_23m28YcZzZw&s" },
+      { name: "Sambar rice", category: "indian", price: "₹129", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_ig-mnWrhftqMoEhvbGBo9JO7fb5xPcmZLQ&s" },
+      { name: "Curd rice", category: "indian", price: "₹99", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyiNnJ_aDtGG1V7ZE1E_jqNLvfvDJ5Dlie1g&s" },
+      { name: "Paneer Fried-rice", category: "indian", price: "₹199", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVnh9B7GiIKQMMehoGKsaBefIKliQl4duBNQ&s" },
+      { name: "Mutton Biryani", category: "indian", price: "₹349", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL64QU2oeAYPk289-33qxDbTyU6m0R6o13TQ&s" },
+      { name: "Chicken Biryani", category: "indian", price: "₹299", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPyJ2vhJ3Uo5QtZ4NgNzlpZFMUEfpyqRhWWw&s" },
+    ];
+
+    const productContainer = document.getElementById("allProducts");
+    const cart = [];
+    const cartCount = document.getElementById("cartCount");
+    const cartItems = document.getElementById("cartItems");
+
+    function renderProducts(list) {
+      productContainer.innerHTML = "";
+      list.forEach((p, i) => {
+        productContainer.innerHTML += `
+          <div class="product-card">
+            <img src="${p.img}" alt="${p.name}">
+            <div class="product-info">
+              <h3>${p.name}</h3>
+              <p>${p.category}</p>
+              <div class="price">${p.price}</div>
+              <button class="btn" onclick="addToCart(${i})">Add to Cart</button>
+            </div>
+          </div>`;
+      });
+    }
+
+    function addToCart(index) {
+      cart.push(products[index]);
+      cartCount.innerText = cart.length;
+      alert(`${products[index].name} added to cart!`);
+    }
+
+    function showCart() {
+      document.getElementById("cartSection").style.display = "block";
+      renderCart();
+    }
+
+    function renderCart() {
+      cartItems.innerHTML = "";
+      cart.forEach((item) => {
+        cartItems.innerHTML += `<div>
+          <p>${item.name}</p><p>${item.price}</p>
+        </div>`;
+      });
+    }
+
+    function filterProducts(cat) {
+      if (cat === "all") renderProducts(products);
+      else renderProducts(products.filter(p => p.category === cat));
+    }
+
+    function searchProducts() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = products.filter(p => p.name.toLowerCase().includes(input));
+      renderProducts(filtered);
+    }
+
+    function checkout() {
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+      } else {
+        alert("Order placed successfully! Enjoy your meal 🍽️");
+        cart.length = 0;
+        cartCount.innerText = 0;
+        cartItems.innerHTML = "";
+      }
+    }
+
+    renderProducts(products);
+  </script>
+</body>
+</html>
